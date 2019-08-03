@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	<mapper namespace="main.java.dao.RecordDao">
+		<select id="findAll" resultType="main.java.entity.Record">
+			select * from record
+		</select>
+		
+		<insert id="insert" parameterType="main.java.entity.Record">
+			insert into record (type,date,price,detailIndiction,userId,personInCharge) values (#{type},now(),#{price},#{detailIndiction},#{userId},#{personInCharge})
+		</insert>
+		
+		<select id="findRecordWithUser" resultType="main.java.util.RecordResult">
+			SELECT * FROM record LEFT JOIN USER ON user.id=record.userId
+		</select>
+		
+		<select id="findWithCondition" parameterType="main.java.util.SearchRecordVO" resultType="main.java.util.RecordResult">
+			SELECT * FROM record LEFT JOIN USER ON user.id=record.userId
+			<where>
+			<if test="startTime!=null">
+			and date >= #{startTime} 
+			</if>
+			<if test="endTime!=null">
+			and  #{endTime} >= date
+			</if>
+			<if test="type!=0">
+				and type = #{type}
+			</if>
+			</where>
+
+				order by
+				<if test='sort=="date ASC"'>
+					date asc
+				</if>
+				<if test='sort=="date DESC"'>
+					date desc
+				</if>
+				<if test='sort=="userId ASC"'>
+					userId asc
+				</if>
+				<if test='sort=="userId DESC"'>
+					userId desc
+				</if>
+								limit #{pageNum} , #{numInPage}
+		</select>
+		<update id="updatePriceByIndiction" parameterType="main.java.util.UpdateRecordVO">
+			update record set price = #{price} where detailIndiction = #{detailIndiciton}
+		</update>
+		<select id="findWithIndiction" parameterType="java.lang.String" resultType="main.java.entity.Record">
+			select * from record where detailIndiction = #{indiction}
+		</select>
+		
+		<delete id="deleteByIndiction" parameterType="java.lang.String">
+			delete from record where detailIndiction = #{indiction}
+		</delete>
+		
+		<select id="findRecordWithPage" parameterType="main.java.util.PageRecordVO" resultType="main.java.util.RecordResult">
+			SELECT * FROM record LEFT JOIN USER ON user.id=record.userId limit #{pageNum} , #{numInPage}
+		</select>
+	
+		<select id="findRecordResultWithIndiction" resultType="main.java.util.RecordResult">
+			SELECT * FROM record LEFT JOIN USER ON user.id=record.userId WHERE detailIndiction = #{indiction}
+		</select>
+	</mapper>
